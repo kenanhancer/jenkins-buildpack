@@ -14,7 +14,7 @@ JRE_ARHIVE_FILE=$bp_dir/files/$JRE_ARHIVE
 # CF Common
 BUILDPACK_PATH=$bp_dir
 export BUILDPACK_PATH
-source $bp_dir/compile-extensions/lib/common
+
 # END CF Common
 source $bp_dir/bin/common.sh
 
