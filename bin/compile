@@ -39,7 +39,7 @@ popd
 # Update the PATH
 status "Building runtime environment."
 
-echo "export JAVA_OPTS -Djenkins.install.runSetupWizard=false" > $build_dir/.profile.d/jre.sh
+echo "export JAVA_OPTS=\"-Djenkins.install.runSetupWizard=false\";" > $build_dir/.profile.d/jre.sh
 # see this script
 # https://github.com/cloudfoundry/dea_ng/blob/e39ad94e5ea71c33ce91333803a1a956d652a738/lib/dea/starting/startup_script_generator.rb
 mkdir -p $build_dir/.profile.d
