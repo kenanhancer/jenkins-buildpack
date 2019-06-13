@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+set -e            # fail fast
+set -o pipefail   # don't ignore exit codes when piping output
+# set -x          # enable debugging
+
+build_dir=$1
+cache_dir=$2
+bp_dir=$(cd $(dirname $0); cd ..; pwd)
+vendor_dir=$build_dir/vendor
+JRE_ARHIVE=jre-8u212-linux-x64.tar.gz
+JRE_ARHIVE_FILE=$bp_dir/files/$JRE_ARHIVE
+
+# CF Common
+BUILDPACK_PATH=$bp_dir
+export BUILDPACK_PATH
+source $bp_dir/compile-extensions/lib/common
+# END CF Common
+source $bp_dir/bin/common.sh
+
+mkdir -p $vendor_dir
+
+status "Extracting JRE."
+cp $JRE_ARHIVE_FILE $vendor_dir
+pushd $vendor_dir
+  tar -xzf ./$JRE_ARHIVE
+  rm $JRE_ARHIVE
+  JRE_NAME=$(ls -l | tr " " "\n" | grep jre)
+  JRE_DIR=$vendor_dir/$JRE_NAME
+  status "Moving $JRE_NAME to target folder."
+  mv $JRE_DIR jre
+popd
+
+status "Repacking jenkins.war."
+pushd $build_dir
+  zip -q -r jenkins.war * -x "vendor/*"
+popd
+
+# Update the PATH
+status "Building runtime environment."
+# see this script
+# https://github.com/cloudfoundry/dea_ng/blob/e39ad94e5ea71c33ce91333803a1a956d652a738/lib/dea/starting/startup_script_generator.rb
+mkdir -p $build_dir/.profile.d
+# $HOME is set here https://github.com/cloudfoundry/dea_ng/blob/c2217e5fbcb866c9f4b6fd248b39138a83cbb479/lib/dea/starting/env.rb#L15
+echo "export PATH=\"\$HOME/vendor/jre/bin:\$HOME/bin:\$PATH\";" > $build_dir/.profile.d/jre.sh
+
+status "Done."

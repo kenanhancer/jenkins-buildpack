@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+# this script will return strings containg the new values for env vars
+# $PATH and $LD_LIBRARY_PATH by printing them to STDOUT.
+# Caller can export the strings to update the environment
+
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+
+require 'env_builder'
+
+def create_env_string(env_name, env_value)
+	if ENV[env_name].to_s.length > 0
+    puts "#{env_name}=#{env_value}:#{ENV[env_name]}"
+  else
+    puts "#{env_name}=#{env_value}"
+  end
+end
+
+deps_dir = ARGV[0]
+
+if deps_dir && File.exist?(deps_dir)
+  builder = EnvBuilder.new(deps_dir, deps_dir)
+
+  if builder.path != ""
+    create_env_string("PATH", builder.path)
+  end
+
+  if builder.ld_library_path != ""
+    create_env_string("LD_LIBRARY_PATH", builder.ld_library_path)
+    create_env_string("LIBRARY_PATH", builder.ld_library_path)
+  end
+
+  include_path = builder.include_path
+  if include_path != ""
+    create_env_string("INCLUDE_PATH", include_path)
+    create_env_string("CPATH", include_path)
+    create_env_string("CPPPATH", include_path)
+  end
+
+  if builder.pkgconfig != ""
+    create_env_string("PKG_CONFIG_PATH", builder.pkgconfig)
+  end
+
+  puts builder.env.join("\n")
+end
+
+exit 0

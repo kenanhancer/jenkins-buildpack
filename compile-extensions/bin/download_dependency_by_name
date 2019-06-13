@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+require 'yaml'
+require 'compile_extensions'
+require 'digest'
+require 'fileutils'
+require 'open3'
+
+dep_name          = ARGV[0]
+dep_version       = ARGV[1]
+file_location     = ARGV[2]
+manifest_location = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "manifest.yml"))
+manifest          = YAML.load_file(manifest_location)
+dependencies      = CompileExtensions::Dependencies.new(manifest)
+dependency        = dependencies.find_dependency_by_name(dep_name, dep_version)
+
+if dependency.nil?
+	puts "DEPENDENCY_MISSING_IN_MANIFEST: #{dep_name} #{dep_version}"
+	exit 1
+end
+
+dependency_uri    = CompileExtensions::URITranslator.cached_uri(dependency['uri'])
+filtered_uri      = CompileExtensions::URITranslator.filter_uri(dependency_uri)
+
+_, status = Open3.capture2e('curl', '-s', '-L', '-f', dependency_uri, '-o', file_location)
+if !status.success?
+	puts "ERROR: Failed to download dependency #{filtered_uri}"
+	exit 3
+end
+
+generated_sha256 = Digest::SHA256.file(file_location).hexdigest
+
+puts filtered_uri
+
+if dependency['sha256'] == generated_sha256
+  exit 0
+else
+  puts "DEPENDENCY_SHA256_MISMATCH for #{filtered_uri}: generated sha256: #{generated_sha256}, expected sha256: #{dependency['sha256']}"
+  FileUtils.rm(file_location)
+  exit 3
+end

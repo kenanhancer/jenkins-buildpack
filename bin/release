@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# bin/release <build-dir>
+cat <<EOF
+addons: []
+config_vars: []
+default_process_types:
+  web: java -jar jenkins.war --httpPort=\$PORT
+EOF
