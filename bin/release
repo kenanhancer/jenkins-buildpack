@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # bin/release <build-dir>
+
+status "Release invoked."
+
 cat <<EOF
 addons: []
 config_vars: []
 default_process_types:
-  web: java -jar jenkins.war --httpPort=\$PORT -Djenkins.install.runSetupWizard=false
+  web: java -jar jenkins.war -Djenkins.install.runSetupWizard=false
 EOF
