@@ -4,5 +4,5 @@ cat <<EOF
 addons: []
 config_vars: []
 default_process_types:
-  web: java -jar jenkins.war -Djenkins.install.runSetupWizard=false
+  web: java -jar jenkins.war --httpPort=\$PORT
 EOF
