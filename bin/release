@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 # bin/release <build-dir>
-
-echo "Release invoked."
-
 cat <<EOF
 addons: []
 config_vars: []
