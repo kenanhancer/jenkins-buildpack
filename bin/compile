@@ -42,8 +42,10 @@ status "Building runtime environment."
 # see this script
 # https://github.com/cloudfoundry/dea_ng/blob/e39ad94e5ea71c33ce91333803a1a956d652a738/lib/dea/starting/startup_script_generator.rb
 mkdir -p $build_dir/.profile.d
-export JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+# export JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
 # $HOME is set here https://github.com/cloudfoundry/dea_ng/blob/c2217e5fbcb866c9f4b6fd248b39138a83cbb479/lib/dea/starting/env.rb#L15
-echo "export PATH=\"\$HOME/vendor/jre/bin:\$HOME/bin:\$PATH\";" >> $build_dir/.profile.d/jre.sh
+echo "export PATH=\"\$HOME/vendor/jre/bin:\$HOME/bin:\$PATH\";" > $build_dir/.profile.d/jre.sh
+
+cat $build_dir/.profile.d/jre.sh
 
 status "Done."
